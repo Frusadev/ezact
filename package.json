@@ -1,0 +1,47 @@
+{
+  "name": "nezt",
+  "version": "1.0.0",
+  "description": "Type-safe Next.js server actions and API route handlers with progressive context enrichment, middleware pipelines, and validation.",
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./middlewares": {
+      "types": "./src/middlewares/index.ts",
+      "import": "./src/middlewares/index.ts",
+      "default": "./src/middlewares/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "peerDependencies": {
+    "zod": "^3.23.0 || ^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "zod": {
+      "optional": false
+    }
+  },
+  "devDependencies": {
+    "typescript": "npm:@typescript/typescript6",
+    "zod": "^3.24.2"
+  },
+  "keywords": [
+    "nextjs",
+    "server-actions",
+    "route-handlers",
+    "zod",
+    "type-safe",
+    "middleware",
+    "validation",
+    "context-enrichment",
+    "api"
+  ]
+}
