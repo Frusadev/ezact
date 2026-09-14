@@ -1,4 +1,4 @@
-# nezt
+# ezact
 
 > **The type-safe Next.js Server Action & API Route engine with progressive context enrichment, onion middleware pipelines, and zero-compromise TypeScript DX.**
 
@@ -10,11 +10,11 @@
 
 ## Overview
 
-**nezt** is an open-source, lightweight, end-to-end type-safe framework for building Next.js Server Actions and API Route Handlers.
+**ezact** is an open-source, lightweight, end-to-end type-safe framework for building Next.js Server Actions and API Route Handlers.
 
 While Next.js Server Actions provide seamless client-server RPC, managing **input validation, authorization, rate-limiting, idempotency, context enrichment, and error serialization** across large applications often leads to repetitive boilerplate and fragile `any` type casts.
 
-`nezt` solves this with:
+`ezact` solves this with:
 - **Zero `any` Type System**: Compile-time safe from untrusted runtime boundaries (`unknown`) down into deeply nested handler contexts.
 - **Progressive Context Enrichment**: Middlewares accumulate strongly-typed properties (`ctx.user`, `ctx.tenant`, `ctx.db`) without requiring call-site type assertions.
 - **Dual Syntax**: Choose between declarative object configuration (`action({ ... })`) or a fluent builder (`action().input(...).use(...).handler(...)`).
@@ -28,16 +28,16 @@ While Next.js Server Actions provide seamless client-server RPC, managing **inpu
 
 ```bash
 # npm
-npm install nezt zod
+npm install @frufruinda/ezact zod
 
 # pnpm
-pnpm add nezt zod
+pnpm add @frufruinda/ezact zod
 
 # bun
-bun add nezt zod
+bun add @frufruinda/ezact zod
 ```
 
-> **Peer Dependency**: `nezt` requires `zod` (`^3.23.0` or `^4.0.0`).
+> **Peer Dependency**: `@frufruinda/ezact` requires `zod` (`^3.23.0` or `^4.0.0`).
 
 ---
 
@@ -50,7 +50,7 @@ bun add nezt zod
 "use server";
 
 import { z } from "zod";
-import { action, badRequest } from "nezt";
+import { action, badRequest } from "@frufruinda/ezact";
 
 export const createUser = action({
   input: z.object({
@@ -102,7 +102,7 @@ export function NewUserForm() {
 
 ### 3. Expose as a Next.js API Route Handler
 
-Any action created with `nezt` can be exported directly as a standard route handler with full error translation and JSON serialization:
+Any action created with `ezact` can be exported directly as a standard route handler with full error translation and JSON serialization:
 
 ```ts
 // app/api/users/route.ts
@@ -117,7 +117,7 @@ export const POST = createUser.toRouteHandler();
 
 ### Declarative vs. Fluent Syntax
 
-`nezt` supports two intuitive authoring styles with identical runtime behavior and type safety:
+`ezact` supports two intuitive authoring styles with identical runtime behavior and type safety:
 
 #### Object Configuration
 ```ts
@@ -145,10 +145,10 @@ export const updateProject = action()
 
 ### Progressive Context Enrichment
 
-Middlewares in `nezt` use an onion model. When a middleware adds a property via `ctx.add(key, value)`, TypeScript progressively infers that property on `ctx` for all downstream middlewares and the final handler:
+Middlewares in `ezact` use an onion model. When a middleware adds a property via `ctx.add(key, value)`, TypeScript progressively infers that property on `ctx` for all downstream middlewares and the final handler:
 
 ```ts
-import { createMiddleware, unauthorized } from "nezt";
+import { createMiddleware, unauthorized } from "@frufruinda/ezact";
 
 interface AuthContext {
   user: {
@@ -195,8 +195,8 @@ Instead of repeating the same base middlewares on every action, configure a cent
 
 ```ts
 // lib/action-client.ts
-import { createActionClient } from "nezt";
-import { logging, timing } from "nezt/middlewares";
+import { createActionClient } from "@frufruinda/ezact";
+import { logging, timing } from "@frufruinda/ezact/middlewares";
 import { requireAuth } from "./auth-middleware";
 
 // Base unauthenticated client with logging and timing
@@ -229,7 +229,7 @@ export const cancelSubscription = authedAction
 
 ### Partitioned Schemas for API Routes
 
-When using actions as REST API route handlers, request data arrives from different places: URL dynamic parameters, search query strings, and request bodies. `nezt` lets you validate each partition independently:
+When using actions as REST API route handlers, request data arrives from different places: URL dynamic parameters, search query strings, and request bodies. `ezact` lets you validate each partition independently:
 
 ```ts
 // app/actions/documents.ts
@@ -260,7 +260,7 @@ Supported partitions:
 
 ### Returning Custom Responses
 
-If your handler returns a native Web `Response` object (e.g. streaming a file, generating a PDF, or issuing a redirect), `nezt` detects it and passes it through untouched:
+If your handler returns a native Web `Response` object (e.g. streaming a file, generating a PDF, or issuing a redirect), `ezact` detects it and passes it through untouched:
 
 ```ts
 export const exportInvoicePdf = action({
@@ -284,13 +284,13 @@ export const GET = exportInvoicePdf.toRouteHandler();
 
 ## Built-in Middlewares
 
-Import from `nezt/middlewares` or directly from `nezt`:
+Import from `@frufruinda/ezact/middlewares` or directly from `@frufruinda/ezact`:
 
 ### 1. `rateLimit(options)`
 Sliding-window in-memory rate limiter with custom key generator and optional distributed store adapter (Redis, Upstash, Memcached):
 
 ```ts
-import { rateLimit } from "nezt";
+import { rateLimit } from "@frufruinda/ezact";
 
 export const sensitiveAction = action({
   middleware: [
@@ -308,7 +308,7 @@ export const sensitiveAction = action({
 Prevents duplicate financial mutations or double-submissions by caching responses based on an idempotency key (from header `idempotency-key` or input payload):
 
 ```ts
-import { idempotency } from "nezt";
+import { idempotency } from "@frufruinda/ezact";
 
 export const chargeCard = action({
   input: z.object({ amount: z.number(), idempotencyKey: z.string() }),
@@ -326,7 +326,7 @@ export const chargeCard = action({
 Declarative authorization check or permission evaluator:
 
 ```ts
-import { policy } from "nezt";
+import { policy } from "@frufruinda/ezact";
 
 export const deleteProject = action({
   middleware: [
@@ -341,7 +341,7 @@ export const deleteProject = action({
 Tracks action execution latency and records `startTime`:
 
 ```ts
-import { timing } from "nezt";
+import { timing } from "@frufruinda/ezact";
 
 export const myAction = action({
   middleware: [timing()],
@@ -355,7 +355,7 @@ export const myAction = action({
 Structured logger recording action lifecycle, request ID, duration, and errors:
 
 ```ts
-import { logging } from "nezt";
+import { logging } from "@frufruinda/ezact";
 
 export const myAction = action({
   middleware: [logging({ logInput: true })],
@@ -367,7 +367,7 @@ export const myAction = action({
 
 ## Error Handling
 
-`nezt` provides standard HTTP-aligned error classes and helpers. When thrown, they automatically serialize to standard JSON in API route handlers and propagate cleanly in Server Actions:
+`ezact` provides standard HTTP-aligned error classes and helpers. When thrown, they automatically serialize to standard JSON in API route handlers and propagate cleanly in Server Actions:
 
 | Class | Status Code | Helper Function | Default Code |
 |---|---|---|---|
@@ -381,7 +381,7 @@ export const myAction = action({
 | `InternalServerError` | `500` | `internalServerError(msg, details)` | `INTERNAL_SERVER_ERROR` |
 
 ```ts
-import { notFound, forbidden } from "nezt";
+import { notFound, forbidden } from "@frufruinda/ezact";
 
 export const getDocument = action({
   input: z.object({ id: z.string() }),
@@ -414,7 +414,7 @@ Route handlers adapted with `.toRouteHandler()` return clean error payloads:
 
 ## Comparison
 
-| Feature | `nezt` | `next-safe-action` | Raw Server Actions |
+| Feature | `ezact` | `next-safe-action` | Raw Server Actions |
 |---|:---:|:---:|:---:|
 | **Type-Safe Input Validation** | ✅ Zod / Partitioned | ✅ Zod | ❌ Manual |
 | **Progressive Context Enrichment** | ✅ Full inference | ⚠️ Partial | ❌ None |
@@ -446,4 +446,4 @@ bun x tsc --noEmit
 
 ## License
 
-MIT © [Nezt Contributors](https://github.com/nezt)
+MIT © [Nezt Contributors](https://github.com/Frusadev/ezact)
