@@ -1,6 +1,6 @@
 {
   "name": "@frufruinda/ezact",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Type-safe Next.js server actions and API route handlers with progressive context enrichment, middleware pipelines, and validation.",
   "license": "MIT",
   "main": "./src/index.ts",
