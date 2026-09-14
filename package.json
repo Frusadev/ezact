@@ -1,5 +1,5 @@
 {
-  "name": "nezt",
+  "name": "@frufruinda/ezact",
   "version": "1.0.0",
   "description": "Type-safe Next.js server actions and API route handlers with progressive context enrichment, middleware pipelines, and validation.",
   "license": "MIT",
