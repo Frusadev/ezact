@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20%26%20Zero%20any-3178c6.svg)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-13%20%7C%2014%20%7C%2015-black.svg)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-13%20%7C%2014%20%7C%2015%20%7C%2016-black.svg)](https://nextjs.org/)
 
 ---
 
