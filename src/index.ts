@@ -1,52 +1,80 @@
 export {
+  ActionBuilder,
   action,
   createActionClient,
-  ActionBuilder,
+  createClientActionReference,
 } from "./action";
 
 export {
   ActionContext,
+  type BaseContextOptions,
   createBaseContext,
   type TypedActionContext,
-  type BaseContextOptions,
 } from "./context";
+export {
+  type ActionDispatcherOptions,
+  createActionDispatcher,
+} from "./dispatcher";
+export {
+  AppError,
+  BadRequestError,
+  badRequest,
+  ConflictError,
+  conflict,
+  ForbiddenError,
+  forbidden,
+  InternalServerError,
+  internalServerError,
+  NotFoundError,
+  notFound,
+  RateLimitError,
+  rateLimitExceeded,
+  type SerializedAppError,
+  toAppError,
+  UnauthorizedError,
+  unauthorized,
+  ValidationError,
+  validationError,
+} from "./errors";
 
+export {
+  type CallClientActionOptions,
+  callAction,
+  callClientAction,
+  normalizeActionResponse,
+  normalizeErrorToResponse,
+  safeCall,
+} from "./execution";
 export {
   createMiddleware,
   runPipeline,
 } from "./middleware";
-
+export * from "./middlewares";
+export {
+  ActionRegistry,
+  actionRegistry,
+  normalizePath,
+  type ResolveError,
+  type ResolveErrorReason,
+  type ResolveResult,
+} from "./registry";
 export {
   createRouteHandler,
   isPartitionedSchema,
   parseSearchParams,
 } from "./route-adapter";
-
-export {
-  AppError,
-  ValidationError,
-  BadRequestError,
-  UnauthorizedError,
-  ForbiddenError,
-  NotFoundError,
-  ConflictError,
-  RateLimitError,
-  InternalServerError,
-  badRequest,
-  unauthorized,
-  forbidden,
-  notFound,
-  conflict,
-  rateLimitExceeded,
-  internalServerError,
-  validationError,
-  toAppError,
-  type SerializedAppError,
-} from "./errors";
-
 export type {
   ActionConfig,
+  ActionErrorContext,
+  ActionErrorHandler,
   ActionHandler,
+  ActionResponse,
+  ClientActionReference,
+  DeclaredErrorDefinition,
+  DeclaredErrors,
+  ErrorHandlingConfig,
+
+  HttpMethod,
   InferHandlerInput,
   InferInput,
   InferOutput,
@@ -64,4 +92,3 @@ export type {
   UnionToIntersection,
 } from "./types";
 
-export * from "./middlewares";

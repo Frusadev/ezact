@@ -9,15 +9,15 @@ import {
   idempotency,
   logging,
   policy,
-  rateLimit,
   RateLimitError,
+  rateLimit,
   timing,
   UnauthorizedError,
   unauthorized,
   ValidationError,
 } from "../src/index";
 
-describe("Nezt Server Action & Execution Engine", () => {
+describe("Ezact Server Action & Execution Engine", () => {
   describe("Context Enrichment & Immutability", () => {
     it("should initialize base context with default requestId", () => {
       const ctx = createBaseContext();
@@ -103,18 +103,22 @@ describe("Nezt Server Action & Execution Engine", () => {
     it("should execute middlewares in onion order and accumulate context", async () => {
       const logs: string[] = [];
 
-      const mw1 = createMiddleware<object, { step1: boolean }>(async ({ ctx, next }) => {
-        logs.push("mw1 before");
-        const nextCtx = ctx.add("step1", true);
-        const res = await next({ ctx: nextCtx });
-        logs.push("mw1 after");
-        return res;
-      });
+      const mw1 = createMiddleware<object, { step1: boolean }>(
+        async ({ ctx, next }) => {
+          logs.push("mw1 before");
+          const nextCtx = ctx.add("step1", true);
+          const res = await next({ ctx: nextCtx });
+          logs.push("mw1 after");
+          return res;
+        },
+      );
 
-      const mw2 = createMiddleware<object, { step2: string }>(async ({ ctx }) => {
-        logs.push("mw2");
-        return ctx.add("step2", "done");
-      });
+      const mw2 = createMiddleware<object, { step2: string }>(
+        async ({ ctx }) => {
+          logs.push("mw2");
+          return ctx.add("step2", "done");
+        },
+      );
 
       const testAction = action({
         middleware: [mw1, mw2],
@@ -281,7 +285,9 @@ describe("Nezt Server Action & Execution Engine", () => {
       });
 
       const routeHandler = sampleAction.toRouteHandler();
-      const request = new Request("http://localhost:3000/api/test?queryParam=hello");
+      const request = new Request(
+        "http://localhost:3000/api/test?queryParam=hello",
+      );
       const response = await routeHandler(request);
 
       expect(response.status).toBe(200);
@@ -296,7 +302,9 @@ describe("Nezt Server Action & Execution Engine", () => {
       });
 
       const routeHandler = sampleAction.toRouteHandler();
-      const request = new Request("http://localhost:3000/api/test?count=invalid");
+      const request = new Request(
+        "http://localhost:3000/api/test?count=invalid",
+      );
       const response = await routeHandler(request);
 
       expect(response.status).toBe(400);
@@ -338,11 +346,14 @@ describe("Nezt Server Action & Execution Engine", () => {
       });
 
       const routeHandler = partitionedAction.toRouteHandler();
-      const request = new Request("http://localhost:3000/api/items/456?tag=docs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: "My Document" }),
-      });
+      const request = new Request(
+        "http://localhost:3000/api/items/456?tag=docs",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: "My Document" }),
+        },
+      );
 
       const response = await routeHandler(request, {
         params: Promise.resolve({ id: "456" }),

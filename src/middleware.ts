@@ -40,7 +40,9 @@ export async function runPipeline(
     currentInput: unknown,
   ): Promise<unknown> {
     if (step <= index) {
-      throw new Error("next() called multiple times within a single middleware");
+      throw new Error(
+        "next() called multiple times within a single middleware",
+      );
     }
     index = step;
 
@@ -68,7 +70,11 @@ export async function runPipeline(
     // 3. Otherwise, it is an intentional early short-circuit return (e.g. cached response)
     if (!nextCalled) {
       if (res instanceof ActionContext) {
-        return await dispatch(step + 1, res as TypedActionContext<object>, currentInput);
+        return await dispatch(
+          step + 1,
+          res as TypedActionContext<object>,
+          currentInput,
+        );
       }
       if (res === undefined) {
         return await dispatch(step + 1, currentCtx, currentInput);

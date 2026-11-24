@@ -1,16 +1,21 @@
 import { describe, expect, it } from "bun:test";
 import { z } from "zod";
-import { action, createMiddleware, type TypedActionContext } from "../src/index";
+import {
+  action,
+  createMiddleware,
+  type TypedActionContext,
+} from "../src/index";
 
 // Type-level assertion helpers
 type Expect<T extends true> = T;
-type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2)
-  ? true
-  : false;
+type Equal<X, Y> =
+  (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2
+    ? true
+    : false;
 type Extends<A, B> = A extends B ? true : false;
 type NotExtends<A, B> = A extends B ? false : true;
 
-describe("Nezt Type-Level Compilation Tests", () => {
+describe("Ezact Type-Level Compilation Tests", () => {
   it("verifies progressive context enrichment across multiple middlewares", () => {
     interface UserContext {
       user: { id: string; email: string };
@@ -19,15 +24,22 @@ describe("Nezt Type-Level Compilation Tests", () => {
       org: { id: string; name: string };
     }
 
-    const authMw = createMiddleware<object, UserContext>(async ({ ctx, next }) => {
-      const nextCtx = ctx.add("user", { id: "u_1", email: "user@example.com" });
-      return await next({ ctx: nextCtx });
-    });
+    const authMw = createMiddleware<object, UserContext>(
+      async ({ ctx, next }) => {
+        const nextCtx = ctx.add("user", {
+          id: "u_1",
+          email: "user@example.com",
+        });
+        return await next({ ctx: nextCtx });
+      },
+    );
 
-    const orgMw = createMiddleware<object, OrgContext>(async ({ ctx, next }) => {
-      const nextCtx = ctx.add("org", { id: "o_1", name: "Acme Corp" });
-      return await next({ ctx: nextCtx });
-    });
+    const orgMw = createMiddleware<object, OrgContext>(
+      async ({ ctx, next }) => {
+        const nextCtx = ctx.add("org", { id: "o_1", name: "Acme Corp" });
+        return await next({ ctx: nextCtx });
+      },
+    );
 
     const testAction = action({
       middleware: [authMw, orgMw],
@@ -49,9 +61,11 @@ describe("Nezt Type-Level Compilation Tests", () => {
       tenantId: string;
     }
 
-    const tenantMw = createMiddleware<object, TenantContext>(async ({ ctx, next }) => {
-      return await next({ ctx: ctx.add("tenantId", "tenant_xyz") });
-    });
+    const tenantMw = createMiddleware<object, TenantContext>(
+      async ({ ctx, next }) => {
+        return await next({ ctx: ctx.add("tenantId", "tenant_xyz") });
+      },
+    );
 
     const builderAction = action()
       .use(tenantMw)
@@ -73,7 +87,10 @@ describe("Nezt Type-Level Compilation Tests", () => {
       handler: async ({ input }) => {
         type _CheckParams = Expect<Equal<typeof input.params, { id: string }>>;
         type _CheckBody = Expect<
-          Equal<typeof input.body, { title: string; score?: number | undefined }>
+          Equal<
+            typeof input.body,
+            { title: string; score?: number | undefined }
+          >
         >;
         type _CheckQuery = Expect<Equal<typeof input.query, { page: number }>>;
 
@@ -89,9 +106,11 @@ describe("Nezt Type-Level Compilation Tests", () => {
       foo: string;
     }
 
-    const sampleMw = createMiddleware<object, SampleContext>(async ({ ctx, next }) => {
-      return await next({ ctx: ctx.add("foo", "bar") });
-    });
+    const sampleMw = createMiddleware<object, SampleContext>(
+      async ({ ctx, next }) => {
+        return await next({ ctx: ctx.add("foo", "bar") });
+      },
+    );
 
     action({
       middleware: [sampleMw],

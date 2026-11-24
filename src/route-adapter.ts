@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { AppError, BadRequestError, toAppError } from "./errors";
+import type { BaseContextOptions } from "./context";
+import { type AppError, BadRequestError, toAppError } from "./errors";
 import type {
   InputSchemaDef,
   PartitionedInputSchema,
@@ -7,7 +8,6 @@ import type {
   RouteHandlerContext,
   ServerAction,
 } from "./types";
-import type { BaseContextOptions } from "./context";
 
 /**
  * Checks if a schema definition is partitioned across HTTP sources (params, query, body, etc.).
@@ -91,8 +91,8 @@ export function createRouteHandler<TInput, TOutput>(
       });
 
       // 4. Resolve request body (if HTTP method allows a payload)
-      let body: unknown = undefined;
-      let formData: FormData | undefined = undefined;
+      let body: unknown;
+      let formData: FormData | undefined;
       const method = request.method.toUpperCase();
 
       if (method !== "GET" && method !== "HEAD") {
@@ -121,7 +121,7 @@ export function createRouteHandler<TInput, TOutput>(
       }
 
       // 5. Construct input payload according to schema expectations
-      let actionInput: unknown = undefined;
+      let actionInput: unknown;
 
       if (isPartitionedSchema(schema)) {
         actionInput = {
@@ -140,12 +140,14 @@ export function createRouteHandler<TInput, TOutput>(
         } else {
           actionInput =
             body !== undefined
-              ? typeof body === "object" && body !== null && !Array.isArray(body)
+              ? typeof body === "object" &&
+                body !== null &&
+                !Array.isArray(body)
                 ? { ...query, ...params, ...(body as Record<string, unknown>) }
                 : body
               : Object.keys(params).length > 0
-              ? { ...params }
-              : undefined;
+                ? { ...params }
+                : undefined;
         }
       } else {
         // No schema: provide all available sources merged
@@ -166,8 +168,7 @@ export function createRouteHandler<TInput, TOutput>(
       const actionFn = action as ActionCallable;
       const result = await actionFn(actionInput, {
         request,
-        requestId:
-          request.headers.get("x-request-id") || crypto.randomUUID(),
+        requestId: request.headers.get("x-request-id") || crypto.randomUUID(),
       });
 
       // 7. If the handler returned a raw Response (e.g. file stream, redirect, custom headers), return it directly

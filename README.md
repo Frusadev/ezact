@@ -37,7 +37,7 @@ pnpm add @frufruinda/ezact zod
 bun add @frufruinda/ezact zod
 ```
 
-> **Peer Dependency**: `@frufruinda/ezact` requires `zod` (`^3.23.0` or `^4.0.0`).
+> **Peer Dependency**: `ezact` requires `zod` (`^3.23.0` or `^4.0.0`).
 
 ---
 
@@ -284,7 +284,7 @@ export const GET = exportInvoicePdf.toRouteHandler();
 
 ## Built-in Middlewares
 
-Import from `@frufruinda/ezact/middlewares` or directly from `@frufruinda/ezact`:
+Import from `ezact/middlewares` or directly from `ezact`:
 
 ### 1. `rateLimit(options)`
 Sliding-window in-memory rate limiter with custom key generator and optional distributed store adapter (Redis, Upstash, Memcached):
@@ -412,6 +412,77 @@ Route handlers adapted with `.toRouteHandler()` return clean error payloads:
 
 ---
 
+## Superactions Architecture
+
+`ezact` includes the complete **Superactions** system for high-scale Next.js production deployments:
+
+### 1. Unified Action Metadata
+Declare HTTP method, REST path, API version, declared application errors, and success messaging right inside `action({...})`:
+
+```ts
+export const createProject = action({
+  path: "/projects",
+  method: "POST",
+  version: 1,
+  input: z.object({ name: z.string() }),
+  errors: {
+    LIMIT_EXCEEDED: { status: 403, message: "Subscription project limit reached" },
+  },
+  defaultSuccess: "Project created",
+  handler: async ({ input, ctx }) => { ... },
+});
+```
+
+### 2. Client Action References (`ClientActionReference`)
+Prevents server code and sensitive dependencies from leaking into `"use client"` bundles. In your companion `.client.ts` file:
+
+```ts
+import { createClientActionReference } from "@frufruinda/ezact/client";
+import type * as serverModule from "./projects";
+
+export const createProject = createClientActionReference<typeof serverModule.createProject>({
+  path: "/projects",
+  method: "POST",
+  version: 1,
+  defaultSuccess: "Project created",
+});
+```
+
+### 3. Remote Client Primitives
+In your client components:
+
+- **`callClientAction(actionRef, input, options?)`**: Returns normalized `{ data, error, success }`. Ideal for form submissions and toasts.
+- **`callClientActionOrThrow(actionRef, input, options?)`**: Unwraps `data` or throws standard `Error`. Integrates natively with TanStack / React Query `queryFn` and `mutationFn`.
+
+```tsx
+// React Query Integration
+const { data } = useQuery({
+  queryKey: ["project", id],
+  queryFn: () => callClientActionOrThrow(getProject, { id }),
+});
+```
+
+### 4. Centralized Action Dispatcher & Registry
+Mount a single catch-all API route at `/api/actions/[...path]/route.ts`:
+
+```ts
+import { ActionRegistry, createActionDispatcher } from "@frufruinda/ezact";
+import * as projectActions from "@/features/projects/actions";
+
+const registry = new ActionRegistry();
+registry.registerAll(projectActions);
+
+const dispatcher = createActionDispatcher({ registry });
+
+export const GET = dispatcher;
+export const POST = dispatcher;
+export const PUT = dispatcher;
+export const PATCH = dispatcher;
+export const DELETE = dispatcher;
+```
+
+---
+
 ## Comparison
 
 | Feature | `ezact` | `next-safe-action` | Raw Server Actions |
@@ -446,4 +517,4 @@ bun x tsc --noEmit
 
 ## License
 
-MIT © [Nezt Contributors](https://github.com/Frusadev/ezact)
+MIT © [Frusadev](https://github.com/Frusadev)

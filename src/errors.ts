@@ -111,7 +111,10 @@ export class InternalServerError extends AppError {
 
 // Convenient factory helpers
 
-export function badRequest(message?: string, details?: unknown): BadRequestError {
+export function badRequest(
+  message?: string,
+  details?: unknown,
+): BadRequestError {
   return new BadRequestError(message, details);
 }
 

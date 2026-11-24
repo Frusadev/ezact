@@ -105,7 +105,7 @@ export type TypedActionContext<TData extends object = Record<string, never>> =
 export function createBaseContext(
   options: BaseContextOptions = {},
 ): TypedActionContext<Record<string, never>> {
-  return new ActionContext<Record<string, never>>(options) as TypedActionContext<
-    Record<string, never>
-  >;
+  return new ActionContext<Record<string, never>>(
+    options,
+  ) as TypedActionContext<Record<string, never>>;
 }
