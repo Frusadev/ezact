@@ -16,7 +16,10 @@ export interface IdempotencyStore {
 }
 
 class MemoryIdempotencyStore implements IdempotencyStore {
-  private readonly cache = new Map<string, { record: IdempotencyRecord; expiresAt: number }>();
+  private readonly cache = new Map<
+    string,
+    { record: IdempotencyRecord; expiresAt: number }
+  >();
 
   async get(key: string): Promise<IdempotencyRecord | undefined> {
     const entry = this.cache.get(key);
@@ -28,7 +31,11 @@ class MemoryIdempotencyStore implements IdempotencyStore {
     return entry.record;
   }
 
-  async set(key: string, record: IdempotencyRecord, ttlMs: number): Promise<void> {
+  async set(
+    key: string,
+    record: IdempotencyRecord,
+    ttlMs: number,
+  ): Promise<void> {
     this.cache.set(key, {
       record,
       expiresAt: Date.now() + ttlMs,
@@ -69,7 +76,9 @@ export function idempotency<TCtx extends object = object, TInput = unknown>(
     if (options.getKey) {
       key = await options.getKey(ctx, input as TInput);
     } else if (ctx.request) {
-      key = ctx.request.headers.get("idempotency-key") || ctx.request.headers.get("x-idempotency-key");
+      key =
+        ctx.request.headers.get("idempotency-key") ||
+        ctx.request.headers.get("x-idempotency-key");
     }
 
     // If no key is provided, proceed normally without caching
